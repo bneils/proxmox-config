@@ -10,11 +10,12 @@ services:
       - VPN_TYPE=openvpn
       # custom.conf == Airvpn.ovpn
       - OPENVPN_CUSTOM_CONFIG=/gluetun/custom.conf
+      - FIREWALL_VPN_INPUT_PORTS=59024
       #- LOG_LEVEL=debug
     ports:
       - 8080:8080 # webui
-      - ${FORWARDED_PORT}:3210/tcp
-      - ${FORWARDED_PORT}:3210/udp
+      - 59024:59024/tcp
+      - 59024:59024/udp
     restart: always
     volumes:
       - ./gluetun:/gluetun
