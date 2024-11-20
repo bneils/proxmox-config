@@ -6,15 +6,10 @@ services:
       - NET_ADMIN
     environment:
       # VPN here
-      - VPN_SERVICE_PROVIDER=airvpn
-      - VPN_TYPE=wireguard
-      # These are stored in .env
-      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
-      - WIREGUARD_PRESHARED_KEY=${WIREGUARD_PRESHARED_KEY}
-      - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}
-      - FIREWALL_VPN_INPUT_PORTS=${FORWARDED_PORT}
-      - SERVER_CITIES=New York City
-      - SERVER_COUNTRIES=United States
+      - VPN_SERVICE_PROVIDER=custom
+      - VPN_TYPE=openvpn
+      # custom.conf == Airvpn.ovpn
+      - OPENVPN_CUSTOM_CONFIG=/gluetun/custom.conf
       #- LOG_LEVEL=debug
     ports:
       - 8080:8080 # webui
@@ -29,19 +24,17 @@ services:
       - /dev/net/tun:/dev/net/tun
 
   qbittorrent-nox:
-    user: qbit
     container_name: qbittorrent
     environment:
-      #- PGID=1000
-      #- PUID=1000
-      - QBT_EULA=accept
+      - PGID=1000
+      - PUID=1000
+      - QBT_LEGAL_NOTICE=confirm
       - QBT_VERSION=latest
       - QBT_WEBUI_PORT=8080
       - TZ=America/New_York
     image: qbittorrentofficial/qbittorrent-nox:latest
     network_mode: "service:gluetun" # CRUCIAL
     read_only: true
-    #stop_grace_period: 30m
     depends_on:
       gluetun:
         condition: service_healthy
@@ -50,5 +43,5 @@ services:
     tty: true
     volumes:
       - ./config:/config
-      - /torrents:/downloads
+      - /shared:/downloads
     restart: always
